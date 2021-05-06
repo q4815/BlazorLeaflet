@@ -11,7 +11,7 @@ window.leafletBlazor = {
             maxZoom: map.maxZoom ? map.maxZoom : undefined,
             maxBounds: map.maxBounds && map.maxBounds.item1 && map.maxBounds.item2 ? L.latLngBounds(map.maxBounds.item1, map.maxBounds.item2) : undefined,
         });
-
+        //leafletMap.options.crs = L.CRS.EPSG3395;
         connectMapEvents(leafletMap, objectReference);
         maps[map.id] = leafletMap;
         layers[map.id] = [];
@@ -155,10 +155,74 @@ window.leafletBlazor = {
                 connectInteractionEvents(layer, objectReference);
             }
         };
-
         const geoJsonLayer = L.geoJson(geoDataObject, options);
         addLayer(mapId, geoJsonLayer, geodata.id);
     },
+
+    addMarkerClusterGroupLayer: function (mapId, markerClusterGroup, objectReference) {
+        //console.log('____________________________________________');
+        var markerClusterGroupOptions = {
+            maxClusterRadius: 20
+        };
+
+        //console.log(markerClusterGroup.jsIconCreateFunctionName);
+        if (markerClusterGroup.jsIconCreateFunctionName !== undefined) {
+            markerClusterGroupOptions.iconCreateFunction = window[markerClusterGroup.jsIconCreateFunctionName];
+        }
+        var markers = new L.MarkerClusterGroup(markerClusterGroupOptions);
+        //var markers = L.markerClusterGroup();
+
+        ////connectMarkerClusterGroupLayerEvents(markers, objectReference);
+        if (markerClusterGroup.marker !== undefined) {
+            markerClusterGroup.marker.forEach(marker => {
+
+                var markerOptions = {
+                    //...createInteractiveLayer(marker),
+                    keyboard: marker.isKeyboardAccessible,
+                    title: marker.title,
+                    alt: marker.alt,
+                    zIndexOffset: marker.zIndexOffset,
+                    opacity: marker.opacity,
+                    riseOnHover: marker.riseOnHover,
+                    riseOffset: marker.riseOffset,
+                    pane: marker.pane,
+                    bubblingMouseEvents: marker.isBubblingMouseEvents,
+                    draggable: marker.draggable,
+                    autoPan: marker.useAutopan,
+                    autoPanPadding: marker.autoPanPadding,
+                    autoPanSpeed: marker.autoPanSpeed
+                };
+                //console.log(marker.icon);
+                if (marker.icon !== undefined) {
+                    markerOptions.icon = createIcon(marker.icon);
+                }
+                //console.log('1');
+                let mkr = L.marker(marker.position, markerOptions);
+                //console.log('2');
+                mkr.data = marker.data;
+                //console.log('3');
+                //connectMarkerEvents(mkr, objectReference);
+                //addLayer(mapId, mkr, marker.id);
+                setTooltipAndPopupIfDefined(marker, mkr);
+                //console.log('4');
+                //markers.bindTooltip('content');
+                markers.addLayer(mkr);
+                //console.log('5');
+            }
+            );
+        }
+
+        //console.log(markerClusterGroup.Marker);
+        //console.log(markerClusterGroup.id);
+        //markers.addLayer(L.marker([58.610479, 49.592447]));
+        //markers.addLayer(L.marker([58.602775, 49.572191]));
+        /*
+        markers.addLayer(L.marker([47.5574007, 16.3918687], options));
+        markers.addLayer(L.marker([47.5574007, 16.3918687], options));
+        */
+        addLayer(mapId, markers, markerClusterGroup.id);
+    },
+
     removeLayer: function (mapId, layerId) {
         const remainingLayers = layers[mapId].filter((layer) => layer.id !== layerId);
         const layersToBeRemoved = layers[mapId].filter((layer) => layer.id === layerId); // should be only one ...
@@ -224,20 +288,45 @@ window.leafletBlazor = {
     }
 };
 
+
+
+function qqqqqqqq(cluster) {
+    var markers = cluster.getAllChildMarkers();
+    var n = cluster.getChildCount();
+    if (n > 20)
+        return L.divIcon({ html: "<div><span>" + n + "</span></div>", className: 'marker-cluster marker-cluster-medium', iconSize: L.point(40, 40) });
+    for (var i = 0; i < markers.length; i++) {
+        if (markers[i].data === 10 || markers[i].data === 11)
+            return L.divIcon({ html: "<div><span>" + n + "</span></div>", className: 'marker-cluster marker-cluster-large', iconSize: L.point(40, 40) });
+    }
+    return L.divIcon({ html: "<div><span>" + n + "</span></div>", className: 'marker-cluster marker-cluster-small', iconSize: L.point(40, 40) });
+}
+
 function createIcon(icon) {
+    //console.log(icon);
     return L.icon({
         iconUrl: icon.url,
         iconRetinaUrl: icon.retinaUrl,
-        iconSize: icon.size ? L.point(icon.size.value.width, icon.size.value.height) : null,
-        iconAnchor: icon.anchor ? L.point(icon.anchor.value.x, icon.anchor.value.y) : null,
-        popupAnchor: L.point(icon.popupAnchor.x, icon.popupAnchor.y),
-        tooltipAnchor: L.point(icon.tooltipAnchor.x, icon.tooltipAnchor.y),
+        iconSize: icon.size ? L.point(icon.size.x, icon.size.y) : null,
+        ////iconSize: [38, 95]//, // size of the icon
+        ////iconSize: [38, 95]//, // size of the icon
+        iconAnchor: icon.anchor ? L.point(icon.anchor.x, icon.anchor.y) : null,
+        popupAnchor: icon.popupAnchor ? L.point(icon.popupAnchor.x, icon.popupAnchor.y) : [0, 0],
+        tooltipAnchor: icon.tooltipAnchor ? L.point(icon.tooltipAnchor.x, icon.tooltipAnchor.y) : [0, 0],
         shadowUrl: icon.shadowUrl,
         shadowRetinaUrl: icon.shadowRetinaUrl,
-        shadowSize: icon.shadowSize ? L.point(icon.shadowSize.value.width, icon.shadowSize.value.height) : null,
-        shadowSizeAnchor: icon.shadowSizeAnchor ? L.point(icon.shadowSizeAnchor.value.width, icon.shadowSizeAnchor.value.height) : null,
+        shadowSize: icon.shadowSize ? L.point(icon.shadowSize.x, icon.shadowSize.y) : null,
+        shadowSizeAnchor: icon.shadowSizeAnchor ? L.point(icon.shadowSizeAnchor.x, icon.shadowSizeAnchor.y) : null,
         className: icon.className
-    })
+    });
+    //return L.icon({
+    //    iconUrl: icon.url,
+    //     iconSize: [38, 95], // size of the icon
+    //    shadowSize: [50, 64], // size of the shadow
+    //    iconAnchor: [22, 94], // point of the icon which will correspond to marker's location
+    //    shadowAnchor: [4, 62],  // the same for the shadow
+    //    popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
+    //});
 }
 
 function shapeToLatLngArray(shape) {
@@ -316,10 +405,23 @@ function setTooltipAndPopupIfDefined(layer, jsLayer) {
 }
 
 function addTooltip(layerObj, tooltip) {
+    //console.log(tooltip);
+    //console.log(tooltip.offset ? L.point(tooltip.offset.x, tooltip.offset.y) : [0, 0]);
+    //layerObj.bindTooltip('content').openTooltip();
+    //layerObj.bindTooltip('content2');//.openTooltip();
+    //layerObj.bindTooltip('content',
+    //    {
+    //        pane: 'tooltipPane',
+    //        offset: L.point(10, 10),
+    //        direction: 'auto',
+    //        permanent: false,
+    //        sticky: false,
+    //        opacity: 0.9
+    //    });
     layerObj.bindTooltip(tooltip.content,
         {
             pane: tooltip.pane,
-            offset: L.point(tooltip.offset.x, tooltip.offset.y),
+            offset: tooltip.offset ? L.point(tooltip.offset.x, tooltip.offset.y) : [0, 0],
             direction: tooltip.direction,
             permanent: tooltip.isPermanent,
             sticky: tooltip.isSticky,
@@ -328,6 +430,8 @@ function addTooltip(layerObj, tooltip) {
 }
 
 function addPopup(layerObj, popup) {
+    //console.log(popup);
+    //layerObj.bindPopup('popupContent').openPopup();
     layerObj.bindPopup(popup.content, {
         pane: popup.pane,
         className: popup.className,
@@ -336,7 +440,7 @@ function addPopup(layerObj, popup) {
         autoPan: popup.autoPanEnabled,
         autoPanPaddingTopLeft: popup.autoPanPaddingTopLeft ? L.point(popup.autoPanPaddingTopLeft.x, popup.autoPanPaddingTopLeft.y) : null,
         autoPanPaddingBottomRight: popup.autoPanPaddingBottomRight ? L.point(popup.autoPanPaddingBottomRight.x, popup.autoPanPaddingBottomRight.y) : null,
-        autoPanPadding: L.point(popup.autoPanPadding.x, popup.autoPanPadding.y),
+        autoPanPadding: popup.autoPanPadding ? L.point(popup.autoPanPadding.x, popup.autoPanPadding.y) : [5, 5],
         keepInView: popup.keepInView,
         closeButton: popup.showCloseButton,
         autoClose: popup.autoClose,

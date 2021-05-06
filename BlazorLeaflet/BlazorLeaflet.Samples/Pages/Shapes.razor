@@ -4,6 +4,9 @@
 @using BlazorLeaflet.Models.Events
 @inject IJSRuntime jsRuntime
 
+
+
+
 <h1>Blazor Leaflet </h1>
 
 <h3>Drag &amp; drop the Marker!</h3>
@@ -30,11 +33,13 @@
     <DrawZoneToggleButton ButtonText="Draw Polygon" DrawHandler="_drawHandler" OnToggleCallback="_drawHandler.OnDrawPolygonToggle" />
 </div>
 
+
 @code
 {
     private Map _map;
     private DrawHandler _drawHandler;
     private LatLng _markerLatLng = new LatLng { Lat = 47.5574007f, Lng = 16.3918687f };
+    Marker marker2;
 
     protected override void OnInitialized()
     {
@@ -46,27 +51,101 @@
             Tooltip = new Tooltip { Content = "Click and drag to move me" }
         };
 
+
         _map = new Map(jsRuntime)
         {
             Center = _markerLatLng,
             Zoom = 4.8f
         };
 
+
+
+        var tl = new MarkerClusterGroupLayer
+        {
+            JsIconCreateFunctionName = "qqqqqqqq",
+            Marker = new List<Marker>() { new Marker(_markerLatLng)
+
+        {
+            Title = "Маркер 1",
+            Tooltip = new Tooltip{ Content = "ляля" },
+            Popup = new Popup { Content = string.Format("I am at {0:0.00}° lat, {1:0.00}° lng", _markerLatLng.Lat, _markerLatLng.Lng) },
+            Icon = new Icon()
+            {
+                Url = "leaf-green.png",
+                ShadowUrl = "leaf-shadow.png",
+                Size = new System.Drawing.Size(38, 95), // size of the icon
+                ShadowSize = new System.Drawing.Size(50, 64), // size of the shadow
+                Anchor = new System.Drawing.Point(22, 94), // point of the icon which will correspond to marker's location
+                ShadowAnchor = new System.Drawing.Size(4, 62),  // the same for the shadow
+                PopupAnchor = new System.Drawing.Point(-3, -76) // point from which the popup should open relative to the iconAnchor}
+            },
+            Data = 10
+        }
+        , new Marker(_markerLatLng) { Title = "Маркер 2",            Data = 10 } }
+        };
+
+        var tl2 = new MarkerClusterGroupLayer
+        {
+            JsIconCreateFunctionName = "jsIconCreateFunction",
+            Marker = new List<Marker>() { new Marker(_markerLatLng)
+        {
+            Title = "Маркер 1",
+            Tooltip = new Tooltip{ Content = "ляля" },
+            Popup = new Popup { Content = string.Format("I am at {0:0.00}° lat, {1:0.00}° lng", _markerLatLng.Lat, _markerLatLng.Lng) },
+            Icon = new Icon()
+            {
+                Url = "leaf-green.png",
+                ShadowUrl = "leaf-shadow.png",
+                Size = new System.Drawing.Size(38, 95), // size of the icon
+                ShadowSize = new System.Drawing.Size(50, 64), // size of the shadow
+                Anchor = new System.Drawing.Point(22, 94), // point of the icon which will correspond to marker's location
+                ShadowAnchor = new System.Drawing.Size(4, 62),  // the same for the shadow
+                PopupAnchor = new System.Drawing.Point(-3, -76) // point from which the popup should open relative to the iconAnchor}
+            },
+                Data = 10
+        }
+         }
+        };
+
+
         _map.OnInitialized += () =>
         {
             _map.AddLayer(new TileLayer
             {
-                UrlTemplate = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                //UrlTemplate = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                UrlTemplate = "http://127.0.0.1:8080/geoserver/gwc/service/tms/1.0.0/osm%3Aosm@EPSG%3A900913@png8/{z}/{x}/{-y}.png8",
                 Attribution = "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
             });
 
-            _map.AddLayer(marker);
+
+
+        //_map.AddLayer(marker);
+
+        _map.AddLayer(tl);
+            _map.AddLayer(tl2);
+
         };
 
         _drawHandler = new DrawHandler(_map, jsRuntime);
 
+        _map.OnClick += OnClick;
         marker.OnMove += OnDrag;
         marker.OnMoveEnd += OnDragEnd;
+    }
+
+    private void OnClick(Map sender, MouseEvent e)
+    {
+        if (marker2 != null)
+            _map.RemoveLayer(marker2);
+        marker2 = new Marker(e.LatLng)
+        {
+            Draggable = true,
+            Title = "Marker 122222",
+            Popup = new Popup { Content = string.Format("I am at {0:0.00}° lat, {1:0.00}° lng", _markerLatLng.Lat, _markerLatLng.Lng) },
+            Tooltip = new Tooltip { Content = "Click and drag to move me" }
+
+        };
+        _map.AddLayer(marker2);
     }
 
     private void OnDrag(Marker marker, DragEvent evt)

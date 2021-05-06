@@ -76,7 +76,12 @@ namespace BlazorLeaflet.Models
         /// Number of pixels the map should pan by.
         /// </summary>
         public int AutoPanSpeed { get; set; } = 10;
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Int64? Data { get; set; }
+
         public Marker(float x, float y) : this(new LatLng(x, y)) { }
 
         public Marker(PointF position) : this(position.X, position.Y) { }

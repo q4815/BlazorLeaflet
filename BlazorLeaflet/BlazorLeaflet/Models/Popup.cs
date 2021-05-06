@@ -30,17 +30,17 @@ namespace BlazorLeaflet.Models
         /// <summary>
         /// The margin between the popup and the top left corner of the map view after autopanning was performed.
         /// </summary>
-        public Point? AutoPanPaddingTopLeft { get; set; }
+        public Point AutoPanPaddingTopLeft { get; set; }
 
         /// <summary>
         /// The margin between the popup and the bottom right corner of the map view after autopanning was performed.
         /// </summary>
-        public Point? AutoPanPaddingBottomLeft { get; set; }
+        public Point AutoPanPaddingBottomLeft { get; set; }
 
         /// <summary>
         /// Equivalent of setting both top left and bottom right autopan padding to the same value.
         /// </summary>
-        public Point AutoPanPadding { get; set; } = new Point(5, 5);
+        public Point AutoPanPadding { get; set; }
 
         /// <summary>
         /// Set it to true if you want to prevent users from panning the popup off of the screen while it is open.

@@ -19,7 +19,30 @@
             integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
             crossorigin=""></script>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"
+          crossorigin="" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"
+          crossorigin="" />
+
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"
+            crossorigin=""></script>
+
     <script src="_content/BlazorLeaflet/leafletBlazorInterops.js"></script>
+
+    <script>
+        function jsIconCreateFunction(cluster) {
+            var markers = cluster.getAllChildMarkers();
+            var n = cluster.getChildCount();
+            if (n > 20)
+                return L.divIcon({ html: "<div><span>" + n + "</span></div>", className: 'marker-cluster marker-cluster-medium', iconSize: L.point(40, 40) });
+            for (var i = 0; i < markers.length; i++) {
+                if (markers[i].data === 10 || markers[i].data === 11)
+                    return L.divIcon({ html: "<div><span>" + n + "</span></div>", className: 'marker-cluster marker-cluster-large', iconSize: L.point(40, 40) });
+            }
+            return L.divIcon({ html: "<div><span>" + n + "</span></div>", className: 'marker-cluster marker-cluster-small', iconSize: L.point(40, 40) });
+        }
+    </script>
 
 </head>
 <body>
@@ -28,5 +51,5 @@
     </app>
 
     <script src="_framework/blazor.server.js"></script>
-</body>
+    </body>
 </html>

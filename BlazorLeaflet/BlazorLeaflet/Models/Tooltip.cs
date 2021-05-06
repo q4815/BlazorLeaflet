@@ -4,10 +4,9 @@ namespace BlazorLeaflet.Models
 {
     public class Tooltip : DivOverlay
     {
-
         public override string Pane => "tooltipPane";
 
-        public override Point Offset { get; set; } = Point.Empty;
+        public override Point Offset { get; set; }
 
         /// <summary>
         /// Direction where to open the tooltip. Possible values are: right, left, top, bottom, center, auto. auto will dynamically switch between right and left according to the tooltip position on the map.
